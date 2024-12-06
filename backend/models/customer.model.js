@@ -6,6 +6,13 @@
             required:true,
             //add max length
         },
+        Age:{
+            type:Number,
+        },
+        Gender:{
+            type:String,
+            enum:['M','F','O'],
+        },
         Phone:{
             type:String,
             required:true,
@@ -27,5 +34,7 @@
             default:Date.now(),
         },
     });
+
+    
 
     module.exports = mongoose.model('Customer', customerSchema);

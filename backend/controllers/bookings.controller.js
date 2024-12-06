@@ -4,7 +4,7 @@ const Customer = require('../models/customer.model');
 
 
 const addBooking = async (req,res)=>{
-    const {customerId, roomId, checkIn, checkOut, amount,PaymentStatus} = req.body;
+    const {customerId, numAdults, numChildren, roomId, checkIn, checkOut, amount,PaymentStatus} = req.body;
 
     try{
         const customer = await Customer.findById(customerId);
@@ -23,6 +23,8 @@ const addBooking = async (req,res)=>{
             CheckOut:checkOut,
             PaymentStatus:PaymentStatus,
             Amount:amount,
+            numAdults:numAdults,
+            numChildren:numChildren
         });
         await booking.save();
         room.available = false;
@@ -46,8 +48,8 @@ const getBooking = async(req,res)=>{
 const getBookingById = async (req, res) => {
     try {
         const booking = await Booking.findById(req.params.id)
-            .populate('customer', 'name contactNumber email')
-            .populate('room', 'roomNumber type price');
+            .populate('Customer', 'Name Phone Email')
+            .populate('Room', 'roomNumber type price');
         if (!booking) {
             return res.status(404).json({ message: 'Booking not found' });
         }

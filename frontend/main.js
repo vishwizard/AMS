@@ -1,23 +1,32 @@
-const {app, BrowserWindow} = require('electron');
-
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
 let mainWindow;
 
-app.on('ready',()=>{
+const createWindow = () => {
     mainWindow = new BrowserWindow({
-        Title:"Goutammi Nityannadana Trust Room Management System",
-        width:1200,
-        height:800,
-        webPreferences:{
-            nodeIntegration:true,
+        width: 800,
+        height: 600,
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'), 
+            nodeIntegration: true,
         },
     });
 
-    mainWindow.loadFile('index.html');
+    const startURL = process.env.ELECTRON_START_URL || `file://${path.join(__dirname, 'client/build/index.html')}`;
+    mainWindow.loadURL(startURL);
+
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+    });
+};
+
+app.on('ready', createWindow);
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit();
 });
 
-app.on('window-all-closed',()=>{
-    if(process.platform!=='darwin') app.quit();
-})
-
+app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});

@@ -6,6 +6,14 @@ const bookingSchema = new mongoose.Schema({
         ref:'Customer',
         required:true,
     },
+    numAdults:{
+        type:Number,
+        default:1
+    },
+    numChildren:{
+        type:Number,
+        default:0
+    },
     Room:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Room',
