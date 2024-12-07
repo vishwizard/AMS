@@ -9,11 +9,11 @@ const Sidebar = ()=>{
     return (<>
     <div className="sidebar p-2 pt-20 bg-darkcard min-h-full rounded-md">
             <ul className="">
-                <li className={isActive('/')?ActiveClass:linkClass}><Link to="/">Dashboard</Link></li>
-                <li className={isActive('/bookings')?ActiveClass:linkClass}><Link to="/bookings">Bookings</Link></li>
-                <li className={isActive('/rooms')?ActiveClass:linkClass}><Link to="/rooms">Rooms</Link></li>
-                <li className={isActive('/customers')?ActiveClass:linkClass}><Link to="/customers">Customers</Link></li>
-                <li className={linkClass}><button>Exit</button></li>
+                <li className={isActive('/')?ActiveClass:linkClass}><Link to="/" className="w-full h-full text-center">Dashboard</Link></li>
+                <li className={isActive('/bookings')?ActiveClass:linkClass}><Link to="/bookings" className="w-full text-center h-full">Bookings</Link></li>
+                <li className={isActive('/rooms')?ActiveClass:linkClass}><Link to="/rooms" className="w-full text-center h-full">Rooms</Link></li>
+                <li className={isActive('/customers')?ActiveClass:linkClass}><Link to="/customers" className="w-full h-full text-center">Customers</Link></li>
+                <li className={linkClass}><button className="w-full h-full text-center">Exit</button></li>
             </ul>
         </div>
     </>)
