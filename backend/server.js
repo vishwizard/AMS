@@ -1,8 +1,12 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const connectDB = require('./config/db');
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import connectDB from './config/db.js';
+
+import roomsRoutes from './routes/rooms.routes.js';
+import customerRoutes from './routes/customer.routes.js';
+import bookingsRoutes from './routes/bookings.routes.js';
 
 dotenv.config();
 connectDB();
@@ -19,12 +23,12 @@ app.get('/', (req,res)=>{
 });
 
 //API Routes
-app.use('/api/rooms',require('./routes/rooms.routes'));
-app.use('/api/customers',require('./routes/customer.routes'));
-app.use('/api/bookings',require('./routes/bookings.routes'));
+app.use('/api/rooms',roomsRoutes);
+app.use('/api/customers',customerRoutes);
+app.use('/api/bookings',bookingsRoutes);
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, ()=>{
-    // console.log(`Server is Listening on port ${PORT}`)
+    console.log(`Server is Listening on port ${PORT}`)
 });
