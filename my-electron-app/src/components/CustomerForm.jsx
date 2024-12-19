@@ -3,7 +3,7 @@ import axios from 'axios';
 const CustomerForm = ({ onSubmitForm, Title, Details }) => {
     const [formData, setFormData] = useState({
         Name: Details.Name || '',
-        Age: Details.Age || '',
+        Age: Details.Age || '', 
         Gender: Details.Gender || '',
         Phone: Details.Phone || '',
         Email: Details.Email || '',
@@ -55,8 +55,8 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
         setSuccess(null);
     
         try {
-            let filename = '';
-    
+            let filename = formData.ImageURL;
+            console.log(formData.ImageURL);
             if (image) {
                 filename = await uploadImage();
                 if (!filename) {
@@ -65,7 +65,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                 }
             }
     
-            const updatedFormData = { ...formData, ImageURL: filename };
+            const updatedFormData = { ...formData, ImageURL: filename, Age: Number(formData.Age) };
             setFormData(updatedFormData);
     
             const status = await onSubmitForm(updatedFormData);
@@ -108,7 +108,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
     const handleCoPassengerChange = (e, index) => {
         const { name, value } = e.target;
         const newCoPassengers = [...formData.CoPassengers];
-        newCoPassengers[index] = { ...newCoPassengers[index], [name]: value };
+        newCoPassengers[index] = { ...newCoPassengers[index], [name]: (name==='Age'?Number(value):value) };
         setFormData((prevData) => ({
             ...prevData,
             CoPassengers: newCoPassengers
@@ -145,8 +145,6 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
 
     };
 
-
-
     return (
         <div className="p-4">
             <h2 className="text-2xl font-semibold mb-4">{Title}</h2>
@@ -169,7 +167,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                 <div>
                     <label className="block font-medium">Age</label>
                     <input
-                        type="number"
+                        type="tel"
                         name="Age"
                         value={formData.Age}
                         onChange={handleChange}
@@ -387,7 +385,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                     className="w-full py-2 bg-darkaccent cursor-pointer text-white rounded"
                     disabled={loading}
                 >
-                    {loading ? (Title === 'Add New Customer' ? 'Adding Customer...' : 'Updating Customer...') : (Title === 'Add New Customer' ? 'Add Customer' : 'Update Customer')}
+                    {loading ? (Title === 'Add New Yatri' ? 'Adding Yatri...' : 'Updating Yatri...') : (Title === 'Add New Yatri' ? 'Add Yatri' : 'Update Yatri')}
                 </button>
             </form>
         </div>

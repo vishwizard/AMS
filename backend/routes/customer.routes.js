@@ -1,7 +1,7 @@
 import express from 'express';
 import upload from '../middlewares/upload.js';  // Import multer configuration
 
-import {getCustomer, addCustomer, deleteCustomer,updateCustomer,searchCustomer} from '../controllers/customers.controller.js';
+import {getCustomer, addCustomer, deleteCustomer,updateCustomer,searchCustomer, getRecentCustomers} from '../controllers/customers.controller.js';
 
 const router = express.Router();
 
@@ -10,6 +10,7 @@ router.get('/',getCustomer);
 router.delete('/:id',deleteCustomer);
 router.put('/:id',updateCustomer);
 router.get('/search',searchCustomer);
+router.get('/recent', getRecentCustomers);
 
 router.post('/upload', upload.single('image'), (req, res) => {
     if (req.file) {
@@ -19,5 +20,7 @@ router.post('/upload', upload.single('image'), (req, res) => {
         res.status(400).json({ message: 'Please upload a valid image file' });
     }
 });
+
+  
 
 export default router;

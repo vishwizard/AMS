@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 const RoomForm = ({onSubmitForm,Title,roomDetails}) => {
   const [formData, setFormData] = useState({
+    _id:roomDetails._id || '',
     roomNumber: roomDetails.roomNumber || '',
     type: roomDetails.type || 'Non AC',  // Default type
     price: roomDetails.price || 0,
@@ -15,7 +16,11 @@ const RoomForm = ({onSubmitForm,Title,roomDetails}) => {
     const { name, value, type, checked } = e.target;
     setFormData((prevState) => ({
       ...prevState,
-      [name]: type === 'checkbox' ? (checked ? 'AC' : 'Non AC') : value,
+      [name]: type === 'checkbox' 
+        ? (checked ? 'AC' : 'Non AC') 
+        : name === 'price' 
+        ? Number(value) 
+        : value,
     }));
   };
 
@@ -49,14 +54,15 @@ const RoomForm = ({onSubmitForm,Title,roomDetails}) => {
             name="roomNumber"
             value={formData.roomNumber}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-darkcard"
+            className={`w-full p-2 border rounded bg-darkcard ${Title!=="Add New Room"?"opacity-50":""}`}
             required
+            readOnly={Title!=="Add New Room"}
           />
         </div>
         <div>
           <label className="block font-medium">Price</label>
           <input
-            type="number"
+            type="tel"
             name="price"
             value={formData.price}
             onChange={handleChange}

@@ -18,11 +18,11 @@ const roomSchema = new mongoose.Schema({
     price:{
         type:Number,
         required:true,
-        min:[100,'Price must atleast be 100Rs'],
+        min:[1,'Price must atleast be 100Rs'],
         max:[10000,'Price must be at max 10000Rs'],
     },
 
-    booking:[
+    bookings:[
         {
             type:mongoose.Schema.Types.ObjectId,
             ref:'Booking',

@@ -49,3 +49,4 @@ yarn.lock
 # Others
 *.cache
 .cache-loader/
+temp/*

@@ -3,10 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import connectDB from './config/db.js';
-
-import roomsRoutes from './routes/rooms.routes.js';
-import customerRoutes from './routes/customer.routes.js';
-import bookingsRoutes from './routes/bookings.routes.js';
+import errorHandler from './middlewares/errorHandler.js';
 
 dotenv.config();
 connectDB();
@@ -17,15 +14,28 @@ app.use(cors({
 }));
 
 app.use(bodyParser.json());
+app.use('/api/auth', authRoutes);
+
 
 app.get('/', (req,res)=>{
     res.send('API is running')
 });
 
-//API Routes
+//Importing API Routes
+import roomsRoutes from './routes/rooms.routes.js';
+import customerRoutes from './routes/customer.routes.js';
+import bookingsRoutes from './routes/bookings.routes.js';
+import paymentRoutes from './routes/payments.routes.js';
+import authRoutes from './routes/auth.routes.js';
+
+//Handling API Routes
 app.use('/api/rooms',roomsRoutes);
 app.use('/api/customers',customerRoutes);
 app.use('/api/bookings',bookingsRoutes);
+app.use('/api/payment',paymentRoutes);
+
+//Error Middleware
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
