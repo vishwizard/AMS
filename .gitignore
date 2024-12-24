@@ -50,3 +50,6 @@ yarn.lock
 *.cache
 .cache-loader/
 temp/*
+*.pdf
+my-electron-app/images/*
+my-electron-app/invoices/*

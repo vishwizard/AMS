@@ -34,6 +34,11 @@ const bookingSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  invoiceNumber:{
+    type:Number,
+    required:true,
+    unique:true,
+  }
 }, { timestamps: true });
 
 bookingSchema.index({ CheckIn: 1, CheckOut: 1 });

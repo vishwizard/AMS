@@ -21,15 +21,19 @@ const getRooms = asyncHandler(async (req, res) => {
     throw new ApiError(400, {}, 'Invalid date range');
   }
 
+
   const rooms = await Room.find().populate('bookings').lean();
   const markedRooms = rooms.map((room) => {
-    const isBooked = room?.bookings?.some((bkg) => {
-      return start <= bkg.endDate && end >= bkg.startDate;
-    }) || false;
+    const isBooked = room.bookings.some((bkg) => {
+      const bookingStart = new Date(bkg.CheckIn);
+      const bookingEnd = new Date(bkg.CheckOut);
+   
+      return start <= bookingEnd && end >= bookingStart;
+    });
     return { ...room, isBooked };
   });
 
-  res.status(200).json(new ApiResponse(200, markedRooms));
+  res.status(200).json(new ApiResponse(200, markedRooms, 'Rooms retrieved successfully'));
 });
 
 const getRoomsByType = asyncHandler(async (req, res) => {
@@ -61,7 +65,7 @@ const deleteRoom = asyncHandler(async (req, res) => {
     throw new ApiError(404, {}, 'Room not found');
   }
   const bookings = await Booking.find({
-    room: room._id,
+    Rooms: room._id,
     date: { $gte: new Date() }
   });
 

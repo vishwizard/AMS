@@ -27,14 +27,14 @@ const CustomerCard = ({
 
   return (
     <div
-      className="max-w-64 w-full p-4 rounded-lg shadow-lg bg-darkcard text-white border-2 border-gray-200 hover:shadow-xl transition"
+      className="max-w-64 w-full p-4 rounded-lg shadow-lg bg-bglight dark:bg-darkcard dark:text-white border-2 dark:border-gray-200 hover:shadow-xl transition"
     >
       <div className="flex flex-col items-start">
         <img
           src={
             customer?.ImageURL
               ? `./images/${customer.ImageURL}`
-              : './images/Avatar.png'
+              : './assets/Avatar.png'
           }
           alt="Customer"
           className="w-24 h-24 rounded-full mb-4"

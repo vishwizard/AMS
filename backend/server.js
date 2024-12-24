@@ -33,6 +33,7 @@ app.use('/api/rooms',roomsRoutes);
 app.use('/api/customers',customerRoutes);
 app.use('/api/bookings',bookingsRoutes);
 app.use('/api/payment',paymentRoutes);
+app.use('/api/user',authRoutes);
 
 //Error Middleware
 app.use(errorHandler);

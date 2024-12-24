@@ -142,7 +142,6 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
             };
             reader.readAsDataURL(file);
         }
-
     };
 
     return (
@@ -151,7 +150,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
             {error && <p className="text-red-500">{error}</p>}
             {success && <p className="text-green-500">{success}</p>}
 
-            <form onSubmit={handleSubmit} className="space-y-4 text-white">
+            <form onSubmit={handleSubmit} className="space-y-4 dark:text-white">
                 <div>
                     <label className="block font-medium">Customer Name</label>
                     <input
@@ -160,7 +159,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                         value={formData.Name}
                         maxLength={50}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded bg-darkcard"
+                        className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
                         required
                     />
                 </div>
@@ -171,7 +170,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                         name="Age"
                         value={formData.Age}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded bg-darkcard"
+                        className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
                         required
                     />
                 </div>
@@ -226,7 +225,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                                 handleChange(e); // Update state only if validation passes
                             }
                         }}
-                        className="w-full p-2 border rounded bg-darkcard"
+                        className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
                         required
                         placeholder="Enter 10-digit phone number"
                     />
@@ -242,7 +241,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                         name="Email"
                         value={formData.Email}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded bg-darkcard"
+                        className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
                         required
                         placeholder="Enter a valid email address"
                     />
@@ -259,7 +258,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                         value={formData.Address}
                         maxLength={100}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded bg-darkcard"
+                        className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
                         required
                     />
                 </div>
@@ -270,7 +269,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                         name="IDProof"
                         value={formData.IDProof}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded bg-darkcard"
+                        className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
                         required
                     >
                         <option value="" disabled>Select ID Proof</option>
@@ -289,19 +288,19 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                         value={formData.IDProofNumber}
                         maxLength={50}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded bg-darkcard"
+                        className="w-full p-2 border rounded bg-lightcad bg-lightcard dark:bg-darkcard"
                         required
                     />
                 </div>
 
                 <div className='relative'>
                     <img
-                        src={formData.ImageURL === '' ? (preview ? preview : './images/Upload.jpg') : `./images/${formData?.ImageURL}`} // Image or default avatar
+                        src={formData.ImageURL === '' ? (preview ? preview : './src/assets/Upload.jpg') : `./images/${formData?.ImageURL}`} // Image or default avatar
                         alt="Customer Image"
                         className="w-28 h-28 rounded-md mb-4 "
                         onClick={() => { document.getElementById('ImageUpload').click(); }}
                     />
-                    <button
+                    {(formData.ImageURL || preview) && <button
                         onClick={(e) => {
                             e.preventDefault();
                             setPreview(null);
@@ -316,7 +315,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                             <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                         </svg>
 
-                    </button>
+                    </button>}
                 </div>
                 <div>
                     <label className="block font-medium">Upload Image</label>
@@ -325,7 +324,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                         id='ImageUpload'
                         name="ImageURL"
                         onChange={(e) => { handleImageChange(e); }}
-                        className="w-full p-2 border rounded bg-darkcard"
+                        className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
                         accept="image/*"
                     />
                 </div>
@@ -340,7 +339,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                                 value={coPassenger.Name}
                                 onChange={(e) => handleCoPassengerChange(e, index)}
                                 placeholder="Co-passenger Name"
-                                className="p-2 border rounded w-full bg-darkcard"
+                                className="p-2 border rounded w-full bg-lightcard dark:bg-darkcard"
                                 required
                             />
                             <input
@@ -349,7 +348,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                                 value={coPassenger.Age}
                                 onChange={(e) => handleCoPassengerChange(e, index)}
                                 placeholder="Age"
-                                className="p-2 border rounded w-full bg-darkcard"
+                                className="p-2 border rounded w-full bg-lightcard dark:bg-darkcard"
                                 required
                             />
                             <button
@@ -377,7 +376,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                         value={formData.Additional}
                         maxLength={200}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded bg-darkcard"
+                        className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
                     />
                 </div>
                 <button

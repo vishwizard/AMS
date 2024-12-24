@@ -15,16 +15,23 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@material-tailwind/react": "^2.1.10",
+    "@reduxjs/toolkit": "^2.5.0",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^2.5.2",
     "mongoose": "^8.8.3",
     "multer": "^1.4.5-lts.1",
     "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4",
+    "react-redux": "^9.2.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {

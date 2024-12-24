@@ -46,7 +46,7 @@ const RoomForm = ({onSubmitForm,Title,roomDetails}) => {
       {error && <p className="text-red-500">{error}</p>}
       {success && <p className="text-green-500">{success}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4 text-white">
+      <form onSubmit={handleSubmit} className="space-y-4 dark:text-white">
         <div>
           <label className="block font-medium">Room Name</label>
           <input
@@ -54,7 +54,7 @@ const RoomForm = ({onSubmitForm,Title,roomDetails}) => {
             name="roomNumber"
             value={formData.roomNumber}
             onChange={handleChange}
-            className={`w-full p-2 border rounded bg-darkcard ${Title!=="Add New Room"?"opacity-50":""}`}
+            className={`w-full p-2 border rounded bg-lightcard dark:bg-darkcard ${Title!=="Add New Room"?"opacity-50":""}`}
             required
             readOnly={Title!=="Add New Room"}
           />
@@ -66,7 +66,7 @@ const RoomForm = ({onSubmitForm,Title,roomDetails}) => {
             name="price"
             value={formData.price}
             onChange={handleChange}
-            className="w-full p-2 border rounded bg-darkcard"
+            className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
             required
           />
         </div>

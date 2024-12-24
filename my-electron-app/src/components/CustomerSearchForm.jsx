@@ -87,7 +87,7 @@ const CustomerSearchForm = ({ onSelectCustomer }) => {
                   value={searchData[field]}
                   maxLength={200}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded bg-darkcard"
+                  className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
                 />
               </div>
             ))}
@@ -99,7 +99,7 @@ const CustomerSearchForm = ({ onSelectCustomer }) => {
                 name="IDProof"
                 value={searchData.IDProof}
                 onChange={handleChange}
-                className="w-full p-2 border rounded bg-darkcard"
+                className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
               >
                 <option value="" disabled>Select ID Proof</option>
                 {['Aadhar', 'PAN', 'Voter ID', 'Other'].map((proof) => (
@@ -115,7 +115,7 @@ const CustomerSearchForm = ({ onSelectCustomer }) => {
                 value={searchData.IDProofNumber}
                 maxLength={50}
                 onChange={handleChange}
-                className="w-full p-2 border rounded bg-darkcard"
+                className="w-full p-2 border rounded bg-lightcard dark:bg-darkcard"
               />
             </div>
           </div>

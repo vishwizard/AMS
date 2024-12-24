@@ -1,7 +1,9 @@
+import ApiResponse from "../utils/ApiResponse.js";
+
 const authorize = (...allowedRoles) => (req, res, next) => {
     const userRole = req.user.role;
     if (!userRole.some(role => allowedRoles.includes(role))) {
-        return res.status(403).json({ message: 'Access Denied' });
+        return res.status(403).json(new ApiResponse(403,{},"Access Denied"));
     }
     next();
 };
