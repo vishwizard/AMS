@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import CustomerForm from './CustomerForm';
 import axios from 'axios';
 import CustomerCard from './CustomerCard';
+import useSecureAxios from '../../utils/Axios';
 
 const CustomerSearchForm = ({ onSelectCustomer }) => {
   const [searchData, setSearchData] = useState({
@@ -15,10 +16,12 @@ const CustomerSearchForm = ({ onSelectCustomer }) => {
   const [status, setStatus] = useState('');
   const [customers, setCustomers] = useState([]);
 
+  const secureAxios = useSecureAxios();
+
   const fetchRecentCustomers = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get('http://localhost:5000/api/customers/recent', {
+      const { data } = await secureAxios.get('/api/customers/recent', {
         params: { limit: 5 },
       });
       console.log(data);
@@ -43,7 +46,7 @@ const CustomerSearchForm = ({ onSelectCustomer }) => {
     if (e) e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await axios.get('http://localhost:5000/api/customers/search', {
+      const { data } = await secureAxios.get('/api/customers/search', {
         params: searchData,
       });
       setCustomers(data.data);
@@ -63,7 +66,7 @@ const CustomerSearchForm = ({ onSelectCustomer }) => {
 
   const addCustomer = async (customerData) => {
     try {
-      await axios.post('http://localhost:5000/api/customers', customerData);
+      await secureAxios.post('/api/customers', customerData);
       setShowForm(false);
       fetchRecentCustomers();
       return true;
@@ -141,7 +144,7 @@ const CustomerSearchForm = ({ onSelectCustomer }) => {
         <CustomerForm onSubmitForm={addCustomer} Title="Add New Yatri" Details="" />
       )}
       <div className='mt-4 border p-4 rounded-md'>
-        <h1 className='text-xl mb-4'>Select Yatri</h1>
+        <h1 className='text-xl mb-4'>Yatri Details : </h1>
         <div className="flex gap-4">
           {customers.map((customer) => (
             <CustomerCard

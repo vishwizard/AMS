@@ -189,4 +189,27 @@ const deleteBooking = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(200, {}, "Booking deleted successfully"));
 });
 
-export { getBookings, getBookingById, addBooking, updateBooking, deleteBooking };
+const getBookingsData = asyncHandler(async (req, res) => {
+  console.log("Request : ",req);
+  const result = await Booking.aggregate([
+    {
+      $group: {
+        _id: null, // Group all documents together
+        totalSales: { $sum: "$price" }, // Summing up the "price" field
+        totalBookings: { $sum: 1 }, // Counting the number of documents
+      },
+    },
+  ]);
+  console.log("result : ",result);
+
+  const totalSales = result.length > 0 ? result[0].totalSales : 0;
+  const totalBookings = result.length > 0 ? result[0].totalBookings : 0;
+
+  res.status(200).json(
+    new ApiResponse(200, { totalSales, totalBookings }, "Stats fetched successfully")
+  );
+});
+
+
+
+export { getBookings, getBookingById, addBooking, updateBooking, deleteBooking, getBookingsData };

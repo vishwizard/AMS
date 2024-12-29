@@ -6,7 +6,7 @@ import authenticate from '../middlewares/authHandler.js';
 const router = express.Router();
 
 // Public Routes
-router.post('/register', register);
+router.post('/register', authenticate, authorize('admin'), register);
 router.post('/login', login);
 
 // Protected Route (only accessible to admins)

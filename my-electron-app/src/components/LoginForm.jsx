@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { login } from '../store/AuthSlice';
 import axios from 'axios';
-import { use } from 'react';
 
 export default function LoginForm() {
     const [username, setUsername] = useState('');
@@ -19,7 +18,7 @@ export default function LoginForm() {
         try {
             setLoading(true);
             const response = await axios.post('http://localhost:5000/api/user/login', { username, password });
-            console.log(response);
+            // console.log(response);
             const data = {username:response.data.data.username,role:response.data.data.role,token:response.data.data.token};
             dispatch(login(data));
             localStorage.setItem('token', data.token);
@@ -87,10 +86,13 @@ export default function LoginForm() {
                         </label>
                     </div>
                     {status && <p className='text-green-400 mb-2'>{status}</p>}
+                    {error && <p className='text-red-400 mb-2'>{error}</p>}
+                    {loading && <p className=' mb-2'>Loading...</p>}
+
                     <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
                         onClick={(e) => { handleLogin(e) }}
                     >
-                        Login
+                        {loading?"Loading...":"Login"}
                     </button>
                 </form>
                 

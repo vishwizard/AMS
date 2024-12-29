@@ -1,11 +1,12 @@
 // import React, { useState } from 'react';
 import CustomerSearchForm from '../components/CustomerSearchForm';
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import RoomCard from '../components/RoomCard';
 import Invoice from '../components/Invoice';
 import dateFormatter from '../../utils/DateFormatter'
-import { fetchBookings, fetchRooms, priceCalculator, deleteBooking, getInvoicePDF } from '../../utils/functions';
+import { priceCalculator, getInvoicePDF } from '../../utils/functions';
+import asyncHandler from '../../utils/asyncHandler';
+import useSecureAxios from '../../utils/Axios';
 
 const Bookings = () => {
   const [rooms, setRooms] = useState([]);
@@ -19,8 +20,19 @@ const Bookings = () => {
     transactionId: '',
     status: false
   });
+  const [filter,setFilter] = useState('all');
+  const [filteredRooms,setFilteredRooms] = useState([]);
+
+  useEffect(()=>{
+    setFilteredRooms(prev=>{
+      if(filter==='all') return rooms;
+      return rooms.filter((room)=>room.type===filter);
+    })
+  },[rooms,filter]);
 
   const printRef = useRef();
+
+  const secureAxios = useSecureAxios();
 
   const initialStartDate = new Date().toISOString().split('T')[0];
   const [startDate, setStartDate] = useState(initialStartDate);  // Today's date
@@ -36,31 +48,15 @@ const Bookings = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  const getRooms = async () => {
-    try {
-      setLoading(true);
-      const roomsData = await fetchRooms(startDate, endDate);
-      setRooms(roomsData);
-    } catch (error) {
-      setError("Error getting room data");
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const getRooms = asyncHandler(async () => {
+    const response = await secureAxios.get(`/api/rooms/?startDate=${startDate}&endDate=${endDate}`);
+    setRooms(response.data.data);
+  }, setLoading, setError);
 
-  const getBookings = async () => {
-    try {
-      setLoading(true);
-      const bookingsData = await fetchBookings(startDate, endDate);
-      setBookings(prev => bookingsData);
-    } catch (err) {
-      console.log(err);
-      setError("Error getting bookings data");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const getBookings = asyncHandler(async () => {
+    const response = await secureAxios.get(`/api/bookings/?startDate=${startDate}&endDate=${endDate}`);
+    setBookings(response.data.data);
+  }, setLoading, setError);
 
   useEffect(() => {
     getBookings();
@@ -77,7 +73,7 @@ const Bookings = () => {
   const cancelBooking = async (bookingId) => {
     try {
       setLoading(true);
-      const response = await deleteBooking(bookingId);
+      const response = await secureAxios.delete(`/api/bookings/${bookingId}`);
       if (response) {
         setBookings(prev => prev.filter(bkg => bkg._id !== bookingId));
         console.log("Booking deleted successfully");
@@ -85,7 +81,7 @@ const Bookings = () => {
     } catch (err) {
       setError("Unable to cancel booking");
       console.error("Error deleting booking:", err);
-    }finally{
+    } finally {
       setLoading(false);
     }
   }
@@ -194,7 +190,7 @@ const Bookings = () => {
           {step === 'BookingDetails' && <button
             className='bg-darkaccent p-2 rounded-md text-xl shadow-md cursor-pointer'
             onClick={async () => {
-              await getInvoicePDF(printRef,currBooking.invoiceNumber);
+              await getInvoicePDF(printRef, currBooking.invoiceNumber);
             }}
           >
             Download Invoice
@@ -294,7 +290,6 @@ const Bookings = () => {
             setCustomer(customer);
             setStep('room');
             getRooms();
-            console.log(customer);
           }}>
           </CustomerSearchForm>
         </div>
@@ -302,24 +297,37 @@ const Bookings = () => {
 
       {step === 'room' &&
         <div className='flex'>
-          <div className='flex gap-4 flex-wrap max-w-2/3 w-full'>
 
-            {
-              error ? <div className='text-red-500 text-center mt-4'>Error: {error}</div> :
+          <div className='max-w-2/3 w-full'> 
+            <div className="flex items-center space-x-4 my-2">
+            <label className="light:text-gray-700 dark:text-white font-medium">Type:</label>
+            <select className="border dark:bg-darkcard bg-lightcard border-gray-300 rounded-lg px-4 py-2 light:text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" onChange={(e) => {
+              setFilter(e.target.value);
+            }}>
+              <option value="all">ALL</option>
+              <option value="AC">AC</option>
+              <option value="Non AC">Non AC</option>
+            </select>
+          </div>
+            
+            <div className='flex gap-4 flex-wrap '>
+              {
+                error ? <div className='text-red-500 text-center mt-4'>Error: {error}</div> :
 
-                rooms?.map((room) => {
-                  return (<RoomCard key={room._id} room={room} selectable={true} onSelect={(room) => {
-                    setSelectedRooms((prev) => [...prev, room])
-                    console.log(selectedRooms);
-                  }
-                  }
-                    onUnSelect={(room) => {
-                      setSelectedRooms(selectedRooms.filter((selectedRoom) => selectedRoom._id != room._id));
+                filteredRooms?.map((room) => {
+                    return (<RoomCard key={room._id} room={room} selectable={true} onSelect={(room) => {
+                      setSelectedRooms((prev) => [...prev, room])
                       console.log(selectedRooms);
-                    }}
-                    cb={() => { }}></RoomCard>);
+                    }
+                    }
+                      onUnSelect={(room) => {
+                        setSelectedRooms(selectedRooms.filter((selectedRoom) => selectedRoom._id != room._id));
+                        console.log(selectedRooms);
+                      }}
+                      cb={() => { }}></RoomCard>);
 
-                })}
+                  })}
+            </div>
           </div>
           <div className='bg-lightcard dark:bg-darkcard w-1/3 p-4 rounded-md'>
             <table class="table-auto border-collapse border border-gray-300 w-full">

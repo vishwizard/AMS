@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
 import RoomForm from '../components/RoomForm';
 import RoomCard from '../components/RoomCard';
-import { fetchRooms } from '../../utils/functions';
+import asyncHandler from '../../utils/asyncHandler';
+import useSecureAxios from '../../utils/Axios.jsx';
 
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);
@@ -16,41 +17,52 @@ const Rooms = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [update, setUpdate] = useState('');
+  const [filteredRooms,setFilteredRooms] = useState([]);
+  const [filter,setFilter] = useState('all');
 
-  const getRooms = async () => {
-    try {
-      setLoading(true);
-      const roomsData = await fetchRooms(startDate,endDate);
-      setRooms(roomsData);
-    } catch (err) {
-      console.log(err);
-      setError("Error getting room data");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const secureAxios = useSecureAxios();
+
+  const getRooms = asyncHandler(async () => {
+    const response = await secureAxios.get(`/api/rooms/?startDate=${startDate}&endDate=${endDate}`);
+    setRooms(response.data.data);
+  }, setLoading, setError);
+
+  const filterRooms = ()=>{
+    setFilteredRooms(prev=>{
+      if(filter==='all') return rooms;
+      return rooms.filter((room)=>{
+        return room.type===filter
+      })
+    })
+  }
+
+  useEffect(()=>{
+    filterRooms();
+  },[filter,rooms])
+
 
   useEffect(() => {
     getRooms();
+    filterRooms();
+
   }, [startDate, endDate]);
 
   const deleteCallback = (roomId) => {
     setRooms(prevRooms => prevRooms.filter(room => room._id !== roomId));
   };
 
+  //too complex to deal with right now
   const updateRoom = async (roomData) => {
     try {
-      const data = {
-        "_id": roomData._id,
-        "type": roomData.type,
-        "price": roomData.price,
-      };
-      await axios.put(`http://localhost:5000/api/rooms/${update._id}`, data);
+      setLoading(true);
+      await secureAxios.put(`/api/rooms/${update._id}`, roomData);
       getRooms();
       return true;
     } catch (err) {
       console.log(err);
       return false;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,16 +73,18 @@ const Rooms = () => {
 
   const addRoom = async (roomData) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/rooms', roomData);
+      setLoading(true);
+      const response = await secureAxios.post('/api/rooms', roomData);
       setRooms(prev => [...prev, { ...response.data.data, isBooked: false }]);
       return true;
     } catch (err) {
       console.error(err);
       return false;
+    } finally {
+      setLoading(false);
     }
   };
 
-  // if (loading) return <div className='text-center mt-4'>Loading...</div>;
   if (error) return <div className='text-red-500 text-center mt-4'>Error: {error}</div>;
 
   return (
@@ -111,6 +125,17 @@ const Rooms = () => {
           {showForm ? 'Cancel' : 'Add Room'}
         </button>
       </div>
+      <div className="flex items-center space-x-4 my-2">
+        <label className="light:text-gray-700 dark:text-white font-medium">Type:</label>
+        <select className="border dark:bg-darkcard bg-lightcard border-gray-300 rounded-lg px-4 py-2 light:text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" onChange={(e) => {
+          setFilter(e.target.value);
+          }}>
+          <option value="all">ALL</option>
+          <option value="AC">AC</option>
+          <option value="Non AC">Non AC</option>
+        </select>
+      </div>
+
 
       {showForm && (
         <RoomForm
@@ -122,9 +147,9 @@ const Rooms = () => {
       )}
 
       {loading ? <div className='text-center mt-4'>Loading...</div> : <div className="flex flex-wrap gap-4 border border-darkaccent p-4 h-auto w-auto">
-        {rooms.map((room) => (
-          <RoomCard key={room._id} room={room} updatable={true} deletable={true} updateForm={updateForm} cb={deleteCallback}></RoomCard>
-        ))}
+        {filteredRooms.map((room) => {
+          return <RoomCard key={room._id} room={room} updatable={true} deletable={true} updateForm={updateForm} cb={deleteCallback}></RoomCard>;
+        })}
       </div>
       }
     </div>

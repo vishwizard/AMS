@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import CustomerForm from '../components/CustomerForm';
 import CustomerCard from '../components/CustomerCard';
+import asyncHandler from '../../utils/asyncHandler';
+import useSecureAxios from '../../utils/Axios';
 
 const Customer = () => {
   const [customers, setCustomers] = useState([]);
@@ -9,61 +10,31 @@ const Customer = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [update, setUpdate] = useState('');
-  const [key, setKey] = useState(0);
+  // const [key, setKey] = useState(0);
 
-  async function fetchData() {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/customers/`);
-      setCustomers(response.data.data);
-    } catch (err) {
-      setError(err.response?.data?.message || err.message);
-    } finally {
-      setLoading(false);
-    }
+  const secureAxios = useSecureAxios();
+
+  const getCustomers = asyncHandler(async () => {
+    const response = await secureAxios.get('/api/customers');
+    setCustomers(response.data.data);
+  }, setLoading, setError)
+
+  const deletecb = (customerId) => {
+    setCustomers(prev => prev.filter(customer => customer._id !== customerId));
+  };
+
+  const updateForm = (customer) => {
+    console.log("Received Data : ", customer);
+    setShowForm(true);
+    setUpdate(prev=>customer);
+    // setKey(prev => prev + 1);
   }
 
   useEffect(() => {
-    fetchData();
+    getCustomers();
   }, []);
 
-  const deletecb = (customerId) => {
-      setCustomers(prev => prev.filter(customer => customer._id !== customerId));
-  };
-
-  const updateCustomer = async (customerData) => {
-    try {
-      const data = customerData;
-      const response = await axios.put(`http://localhost:5000/api/customers/${update._id}`, data);
-      fetchData();
-      return true;
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  }
-
-  const updateForm = (customer) => {
-    setShowForm(true);
-    setUpdate(customer);
-    setKey(prev => prev + 1);
-  }
-
-  const addCustomer = async (customerData) => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/customers', customerData);
-
-      setCustomers(prev => [...prev, response.data.data]);
-      return true;
-    } catch (err) {
-      console.error(err);
-      if (err?.code === 0) {
-        setError('User already exists with the same Phone Number, Email or ID Proof');
-      }
-      return 'User already exists with the same Phone Number, Email or ID Proof';
-    }
-  }
-
-  if (loading) return <div className='text-center mt-4'>Loading...</div>;
+  // if (loading) return <div className='text-center mt-4'>Loading...</div>;
   if (error) return <div className='text-red-500 text-center mt-4'>Error: {error}</div>;
 
   return (
@@ -83,29 +54,36 @@ const Customer = () => {
         </button>
       </div>
 
+      <div>
+
+      </div>
+
 
       {showForm && (
         <CustomerForm
-          key={key}
-          onSubmitForm={update ? updateCustomer : addCustomer}
-          Title={update?.Name ? `Updating Details of ${update.Name}` : 'Add New Yatri'}
+          // key={key}
           Details={update}
+          getCustomers={()=>{getCustomers();}}
         />
       )}
 
       <div className="flex flex-wrap gap-4 border border-darkaccent p-4 w-full">
-        {customers.map((customer) => (
+        {error && <div className='text-red-500 text-center mt-4'>Error: {error}</div>}
+
+        {loading && <div className='text-center mt-4'>Loading...</div>}
+
+        {!error && !loading && customers.map((customer) => (
           <CustomerCard
-          key={customer._id}
-          customer={customer}
-          actions={{
-            onUpdate: updateForm,
-            cb:deletecb,
-            updatable: true,
-            deletable: true,
-          }}
-        />
-        
+            key={customer._id}
+            customer={customer}
+            actions={{
+              onUpdate: updateForm,
+              cb: deletecb,
+              updatable: true,
+              deletable: true,
+            }}
+          />
+
         ))}
       </div>
 

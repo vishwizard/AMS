@@ -1,32 +1,35 @@
-import axios from 'axios';
+// import axios from 'axios';
 import React, { useState } from 'react';
+import useSecureAxios from '../../utils/Axios.jsx';
 
 export default function RegistrationForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('user');
   const [showPassword, setShowPassword] = useState(false);
-  const [status,setStatus] = useState('');
+  const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error,setError] = useState('');
+  const [error, setError] = useState('');
 
-  const handleUserRegistration = async()=>{
+  const axios = useSecureAxios();
+
+  const handleUserRegistration = async () => {
     console.log("This")
 
     try {
-        setLoading(true);
-        if(!username || !password || !role){
-            alert("Please fill all required feilds");
-        }
-        const response = await axios.post("http://localhost:5000/api/user/register",{username,password,role});
-        console.log(response);
-        if(response){
-            setStatus("User Added Successfully");
-        }
+      setLoading(true);
+      if (!username || !password || !role) {
+        alert("Please fill all required feilds");
+      }
+      const response = await axios.post("/api/user/register", { username, password, role });
+      console.log(response);
+      if (response) {
+        setStatus("User Added Successfully");
+      }
     } catch (error) {
-        console.log(error);
-    }finally{
-        setLoading(false);
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -35,10 +38,10 @@ export default function RegistrationForm() {
     <div className="flex justify-center pt-10">
       <div className="bg-white dark:bg-darkcard p-8 rounded-lg shadow-lg w-full max-w-sm">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">Register</h2>
-        <form onSubmit={(e)=>{
-            e.preventDefault();
-            handleUserRegistration();
-            }}>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          handleUserRegistration();
+        }}>
           <div className="mb-4">
             <label htmlFor="username" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
               Username

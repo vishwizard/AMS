@@ -25,90 +25,102 @@ const customerSchema = z.object({
 });
 
 const addCustomer = asyncHandler(async (req, res) => {
-      console.log(req.body);
-      customerSchema.parse(req.body);
-  
-      const { Phone, Email, IDProof, IDProofNumber } = req.body;
-      console.log("hello");
-      console.log(req.body);
-      const existingCustomer = await Customer.findOne({
-        $or: [
-          { Phone },
-          { Email },
-          { IDProof, IDProofNumber }
-        ]
-      });
-  
-      if (existingCustomer) {
-        throw new ApiError(400, {}, "Customer with the same Phone, Email, or ID already exists");
+  console.log(req.body);
+  customerSchema.parse(req.body);
+
+  const { Phone, Email, IDProof, IDProofNumber } = req.body;
+  console.log("hello");
+  console.log(req.body);
+  const existingCustomer = await Customer.findOne({
+    $or: [
+      { Phone },
+      { Email },
+      { IDProof, IDProofNumber }
+    ]
+  });
+
+  if (existingCustomer) {
+    throw new ApiError(400, {}, "Customer with the same Phone, Email, or ID already exists");
+  }
+
+  const customer = new Customer(req.body);
+  await customer.save();
+  res.status(201).json(new ApiResponse(201, customer, "Customer added successfully"));
+});
+
+const getCustomer = asyncHandler(async (req, res) => {
+  const customers = await Customer.find().lean();
+  res.json(new ApiResponse(200, customers));
+});
+
+const getRecentCustomers = asyncHandler(async (req, res) => {
+  const limit = parseInt(req.query.limit) || 5;
+  const recentCustomers = await Customer.find()
+    .sort({ CreationDate: -1 })
+    .limit(limit)
+    .lean();
+  res.json(new ApiResponse(200, recentCustomers));
+});
+
+const deleteCustomer = asyncHandler(async (req, res) => {
+  const customer = await Customer.findOneAndDelete({ _id: req.params.id });
+  if (!customer) {
+    throw new ApiError(404, {}, 'Customer Not Found');
+  }
+  if (customer.ImageURL) {
+    deleteImage(customer.ImageURL);
+  }
+  res.json(new ApiResponse(200, {}, 'Customer Deleted'));
+});
+
+const updateCustomer = asyncHandler(async (req, res, next) => {
+  const customer = await Customer.findById(req.params.id);
+  if (!customer) {
+    throw new ApiError(404, {}, 'Customer Does Not Exist');
+  }
+
+  customerSchema.partial().parse(req.body);
+  Object.assign(customer, req.body);
+
+  if (req.body.ImageURL !== customer.ImageURL && customer.ImageURL) {
+    deleteImage(customer.ImageURL);
+  }
+
+  await customer.save();
+  res.json(new ApiResponse(200, customer, "Customer Updated Successfully"));
+});
+
+const searchCustomer = asyncHandler(async (req, res) => {
+  const { Phone, Email, IDProof, IDProofNumber } = req.query;
+  const query = {};
+
+  if (Phone) query.Phone = Phone;
+  if (Email) query.Email = Email;
+  if (IDProof && IDProofNumber) {
+    query.IDProof = IDProof;
+    query.IDProofNumber = IDProofNumber;
+  }
+
+  const customer = await Customer.find(query).lean();
+
+  if (customer.length === 0) {
+    throw new ApiError(404, {}, "Customer Not Found");
+  }
+
+  res.status(200).json(new ApiResponse(200, customer));
+});
+
+const getCustomersData = asyncHandler(async (req, res) => {
+  const response = await Customer.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalCustomers: { $sum: 1 }
       }
-  
-      const customer = new Customer(req.body);
-      await customer.save();
-      res.status(201).json(new ApiResponse(201, customer, "Customer added successfully"));
-  });
-  
-  const getCustomer = asyncHandler(async (req, res) => {
-    const customers = await Customer.find().lean();
-    res.json(new ApiResponse(200, customers));
-  });
-  
-  const getRecentCustomers = asyncHandler(async (req, res) => {
-    const limit = parseInt(req.query.limit) || 5;
-    const recentCustomers = await Customer.find()
-      .sort({ CreationDate: -1 })
-      .limit(limit)
-      .lean();
-    res.json(new ApiResponse(200, recentCustomers));
-  });
-  
-  const deleteCustomer = asyncHandler(async (req, res) => {
-    const customer = await Customer.findOneAndDelete({ _id: req.params.id });
-    if (!customer) {
-      throw new ApiError(404, {}, 'Customer Not Found');
     }
-    if (customer.ImageURL) {
-      deleteImage(customer.ImageURL);
-    }
-    res.json(new ApiResponse(200, {}, 'Customer Deleted'));
-  });
-  
-  const updateCustomer = asyncHandler(async (req, res, next) => {
-    const customer = await Customer.findById(req.params.id);
-    if (!customer) {
-      throw new ApiError(404, {}, 'Customer Does Not Exist');
-    }
-  
-      customerSchema.partial().parse(req.body);
-      Object.assign(customer, req.body);
-  
-      if (req.body.ImageURL !== customer.ImageURL && customer.ImageURL) {
-        deleteImage(customer.ImageURL);
-      }
-  
-      await customer.save();
-      res.json(new ApiResponse(200, customer, "Customer Updated Successfully"));
-  });
-  
-  const searchCustomer = asyncHandler(async (req, res) => {
-    const { Phone, Email, IDProof, IDProofNumber } = req.query;
-    const query = {};
-  
-    if (Phone) query.Phone = Phone;
-    if (Email) query.Email = Email;
-    if (IDProof && IDProofNumber) {
-      query.IDProof = IDProof;
-      query.IDProofNumber = IDProofNumber;
-    }
-  
-    const customer = await Customer.find(query).lean();
-  
-    if (customer.length === 0) {
-      throw new ApiError(404, {}, "Customer Not Found");
-    }
-  
-    res.status(200).json(new ApiResponse(200, customer));
-  });
-  
-  export { getCustomer, addCustomer, deleteCustomer, updateCustomer, searchCustomer, getRecentCustomers };
-  
+  ]);
+  res.status(200).json(new ApiResponse(200,response[0].totalCustomers,"Data Fetched Successfully"));
+
+});
+
+export { getCustomer, addCustomer, deleteCustomer, updateCustomer, searchCustomer, getRecentCustomers, getCustomersData };

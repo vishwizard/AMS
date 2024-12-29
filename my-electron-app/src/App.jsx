@@ -11,18 +11,17 @@ import { useDispatch } from 'react-redux';
 import LoginForm from './components/LoginForm.jsx';
 import { useEffect, useState } from 'react';
 import { login } from './store/AuthSlice.js';
-import axios from 'axios';
+// import axios from 'axios';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import useSecureAxios from '../utils/Axios.jsx';
 
 function App() {
     const [redirect,setRedirect] = useState(false);
-
+    const secureAxios = useSecureAxios();
     const dispatch = useDispatch();
     const getUserFromToken = async(token)=>{
-        
         try {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            const response = await axios.get("http://localhost:5000/api/user/userinfo");
+            const response = await secureAxios.get("http://localhost:5000/api/user/refreshToken");
             console.log("GetUserProfile : ", response);
             const data = {
                 username:response.data.data.username,

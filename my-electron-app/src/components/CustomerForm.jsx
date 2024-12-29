@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-const CustomerForm = ({ onSubmitForm, Title, Details }) => {
+import useSecureAxios from '../../utils/Axios';
+const CustomerForm = ({ Details , getCustomers=()=>{}}) => {
+    console
     const [formData, setFormData] = useState({
         Name: Details.Name || '',
-        Age: Details.Age || '', 
+        Age: Details.Age || '',
         Gender: Details.Gender || '',
         Phone: Details.Phone || '',
         Email: Details.Email || '',
@@ -19,6 +21,9 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
     const [success, setSuccess] = useState(null);
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
+    const update = Details?true:false;
+
+    const secureAxios = useSecureAxios();
 
     // Handle field change
     const handleChange = (e) => {
@@ -32,11 +37,11 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
         try {
             const formDataForImage = new FormData();
             formDataForImage.append('image', image);
-    
-            const response = await axios.post('http://localhost:5000/api/customers/upload', formDataForImage, {
+
+            const response = await secureAxios.post('/api/customers/upload', formDataForImage, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-    
+
             if (response.status === 200) {
                 return response.data.file.filename;
             } else {
@@ -47,13 +52,32 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
             return false;
         }
     };
-    
+
+    const addCustomer = async (customerData) => {
+        try {
+            const response = await secureAxios.post('/api/customers', customerData);
+            return response;
+        } catch (err) {
+            return err;
+        }
+    }
+
+    const updateCustomer = async (customerData) => {
+        try {
+            const data = customerData;
+            const response = await secureAxios.put(`/api/customers/${Details._id}`, data);
+            return response;
+        } catch (err) {
+            return err;
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
         setSuccess(null);
-    
+
         try {
             let filename = formData.ImageURL;
             console.log(formData.ImageURL);
@@ -64,27 +88,29 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                     return; // Exit if image upload fails
                 }
             }
-    
+
             const updatedFormData = { ...formData, ImageURL: filename, Age: Number(formData.Age) };
             setFormData(updatedFormData);
-    
-            const status = await onSubmitForm(updatedFormData);
-            if (status === true) {
-                setSuccess('Success!');
+
+            const status = await (update?updateCustomer(updatedFormData):addCustomer(updatedFormData));
+            console.log(status);
+            if (status?.data?.data?.success === true) {
+                setSuccess(status.data?.data?.message || 'Success!');
                 resetForm();
                 setImage(null);
                 setPreview(null);
-            } else {
-                setError(status || 'Failed');
+            } else if (status?.response?.data?.success === false) {
+                setError(status?.response?.data?.message || 'Failed!');
             }
         } catch (err) {
             console.error('Error during form submission:', err);
             setError('An unexpected error occurred.');
         } finally {
             setLoading(false);
+            getCustomers();
         }
     };
-    
+
 
     // Helper to reset form
     const resetForm = () => {
@@ -108,7 +134,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
     const handleCoPassengerChange = (e, index) => {
         const { name, value } = e.target;
         const newCoPassengers = [...formData.CoPassengers];
-        newCoPassengers[index] = { ...newCoPassengers[index], [name]: (name==='Age'?Number(value):value) };
+        newCoPassengers[index] = { ...newCoPassengers[index], [name]: (name === 'Age' ? Number(value) : value) };
         setFormData((prevData) => ({
             ...prevData,
             CoPassengers: newCoPassengers
@@ -131,7 +157,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
         }));
     };
 
-    const handleImageChange = async (e) => {
+    const handleImageChange = (e) => {
         const file = e.target.files[0];
         setImage(file);
 
@@ -146,13 +172,13 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
 
     return (
         <div className="p-4">
-            <h2 className="text-2xl font-semibold mb-4">{Title}</h2>
+            <h2 className="text-2xl font-semibold mb-4">{update?`Updating details of ${formData.Name}`:"Add New Yatri"}</h2>
             {error && <p className="text-red-500">{error}</p>}
             {success && <p className="text-green-500">{success}</p>}
 
             <form onSubmit={handleSubmit} className="space-y-4 dark:text-white">
                 <div>
-                    <label className="block font-medium">Customer Name</label>
+                    <label className="block font-medium">Yatri Name</label>
                     <input
                         type="text"
                         name="Name"
@@ -384,7 +410,7 @@ const CustomerForm = ({ onSubmitForm, Title, Details }) => {
                     className="w-full py-2 bg-darkaccent cursor-pointer text-white rounded"
                     disabled={loading}
                 >
-                    {loading ? (Title === 'Add New Yatri' ? 'Adding Yatri...' : 'Updating Yatri...') : (Title === 'Add New Yatri' ? 'Add Yatri' : 'Update Yatri')}
+                    {loading ? (update?"Updating...":"Adding..."):(update?"Update Yatri":"Add New Yatri")}
                 </button>
             </form>
         </div>

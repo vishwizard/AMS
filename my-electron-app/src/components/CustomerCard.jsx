@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import useSecureAxios from '../../utils/Axios';
 
 
 const CustomerCard = ({
@@ -15,10 +16,11 @@ const CustomerCard = ({
     selectable = false,
   } = actions;
 
-  console.log(customer);
+  const secureAxios = useSecureAxios();
+
   const deleteCustomer = async (customerId) => {
     try {
-      const response = await axios.delete(`http://localhost:5000/api/customers/${customerId}`);
+      const response = await secureAxios.delete(`/api/customers/${customerId}`);
       cb(customerId);
     } catch (error) {
       console.error('Error deleting customer:', error.response ? error.response.data : error.message);

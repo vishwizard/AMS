@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
-import { JWT_SECRET, JWT_EXPIRATION } from '../config/jwtConfig.js';
 import asyncHandler from '../utils/AsyncHandler.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
@@ -28,11 +27,9 @@ export const register = asyncHandler(async (req, res) => {
     }
 
     const newUser = new User({ username, password, role });
-    const response = await newUser.save().select('-password');
-    console.log(response);
-    res.status(201).json(new ApiResponse(201, response, 'User registered successfully'));
+    const response = await newUser.save();
+    res.status(201).json(new ApiResponse(201, {}, 'User registered successfully'));
 });
-
 
 export const login = asyncHandler(async (req, res) => {
     const { username, password } = req.body; // Use req.body instead of req.params
@@ -51,7 +48,7 @@ export const login = asyncHandler(async (req, res) => {
         throw new ApiError(401, {}, "Invalid credentials");
     }
 
-    const token = jwt.sign({ id:user._id,username: username, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRATION });
+    const token = jwt.sign({ id:user._id,username: username, role: user.role },process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION });
 
     const response ={
         username:user.username,

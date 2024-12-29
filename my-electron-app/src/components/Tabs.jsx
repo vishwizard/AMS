@@ -1,12 +1,47 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import RegistrationForm from './UserRegistration';
+import asyncHandler from '../../utils/asyncHandler';
+import useSecureAxios from '../../utils/Axios';
 
 const Tabs = () => {
     const [state, setState] = useState('dashboard');
+    const [sales,setSales] = useState('');
+    const [customers,setCustomers] = useState('');
+    const [rooms,setRooms] = useState('');
+    const secureAxios = useSecureAxios();
+    const [error,setError] = useState('');
+    const [loading,setLoading] = useState(false);
 
+    const getSales = asyncHandler(async ()=>{
+        const response = await secureAxios.get('/api/bookings/admin');
+        console.log('Sales : ',response)
+        setSales(response.data.data);
+    },setLoading,setError)
 
+    const getCustomers = asyncHandler(async ()=>{
+        const response = await secureAxios.get('/api/customers/admin');
+        console.log('Customers : ',response)
+        setCustomers(response.data.data);
+    },setLoading,setError)
+
+    const getRooms = asyncHandler(async ()=>{
+        const response = await secureAxios.get('/api/rooms/admin');
+        console.log('Rooms : ',response)
+        setRooms(response.data.data);
+    },setLoading,setError)
+
+    useEffect(()=>{
+        getCustomers();
+        getRooms();
+        getSales();
+    },[]);
+
+    useEffect(()=>{
+        console.log(error);
+    },[error])
 
     const inactiveClass = 'flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors';
-    const activeClass = inactiveClass + ' bg-gray-100';
+    const activeClass = inactiveClass + ' dark:bg-gray-700 bg-gray-100';
 
     return (
         <div className="w-full p-4 bg-white dark:bg-gray-800 shadow-sm">
@@ -25,7 +60,7 @@ const Tabs = () => {
                     </button>
 
                     {/* Center - Profile */}
-                    <button className={state === 'dashboard' ? activeClass : inactiveClass} onClick={() => setState('profile')}>
+                    <button className={state === 'user' ? activeClass : inactiveClass} onClick={() => setState('user')}>
                         <svg
                             className="w-5 h-5 text-gray-700 dark:text-gray-300"
                             viewBox="0 0 24 24"
@@ -33,11 +68,11 @@ const Tabs = () => {
                         >
                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                         </svg>
-                        <span className="text-gray-700 dark:text-gray-300 font-medium">Profile</span>
+                        <span className="text-gray-700 dark:text-gray-300 font-medium">Add New User</span>
                     </button>
 
                     {/* Right - Settings */}
-                    <button className={state === 'dashboard' ? activeClass : inactiveClass} onClick={() => setState('settings')}>
+                    <button className={state === 'settings' ? activeClass : inactiveClass} onClick={() => setState('settings')}>
                         <svg
                             className="w-5 h-5 text-gray-700 dark:text-gray-300"
                             viewBox="0 0 24 24"
@@ -52,17 +87,15 @@ const Tabs = () => {
                 {/* Quote text below */}
                 {state === 'dashboard' && <div className="mt-8 text-gray-600 dark:text-gray-400 text-center px-4">
                     <div className='flex justify-between font-bold text-2xl'>
-                        <div>Total Sales : </div>
-                        <div>Total Customers : </div>
-                        <div>Total Rooms : </div>
+                        <div>Total Sales : {sales || 'NA'}</div>
+                        <div>Total Customers : {customers || 'NA'}</div>
+                        <div>Total Rooms : {rooms || 'NA'} </div>
                     </div>
 
                 </div>}
 
-                {state === 'profile' && <div className="mt-8 text-gray-600 dark:text-gray-400 text-center px-4">
-                    <div>
-                        Display all users
-                    </div>
+                {state === 'user' && <div className="mt-8 text-gray-600 dark:text-gray-400 text-center px-4">
+                    <RegistrationForm></RegistrationForm>
                 </div>}
 
                 {state === 'settings' && <div className="mt-8 text-gray-600 dark:text-gray-400 text-center px-4">

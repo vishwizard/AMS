@@ -15,7 +15,7 @@ const RoomCard = ({ room, updatable = false, deletable = false, selectable = fal
     }
   };
 
-  console.log(deletable);
+  // console.log(deletable);
 
 
   return (
